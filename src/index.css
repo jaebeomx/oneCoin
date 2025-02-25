@@ -8,8 +8,8 @@
   :root {
     /* Base colors */
     --background: #ffffff;
-    --background-elevated: #f8f9fa;
-    --background-secondary: #f1f3f5;
+    --background-elevated: #dadada;
+    --background-secondary: #cccdcf;
 
     /* Text colors */
     --text-primary: #1a1a1a;

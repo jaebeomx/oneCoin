@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useThemeStore } from './store/themeStore';
 import './App.css';
+import Test from '@/test';
 
 function App() {
   const { isDarkMode, toggleTheme } = useThemeStore();
@@ -14,17 +15,11 @@ function App() {
   }, [isDarkMode]);
 
   return (
-    <div className="bg-background min-h-screen p-10">
-      <div className="bg-background-elevated rounded-lg p-4">
-        <button onClick={toggleTheme} className="rounded bg-blue-500 px-4 py-2 text-white">
-          {isDarkMode ? '라이트 모드로 변경' : '다크 모드로 변경'}
-        </button>
-        <p className="text-text-primary">기본 텍스트</p>
-        <p className="text-text-secondary">부가 설명</p>
-        <div className="border-border-primary border p-4">
-          <p className="text-error">에러 메시지</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background p-10">
+      <button onClick={toggleTheme} className="rounded bg-blue-500 px-4 py-2 text-white">
+        {isDarkMode ? '라이트 모드로 변경' : '다크 모드로 변경'}
+      </button>
+      <Test />
     </div>
   );
 }
