@@ -1,3 +1,51 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* -- 접두사를 사용하여 CSS 변수 선언 */
+
+@layer base {
+  :root {
+    /* Base colors */
+    --background: #ffffff;
+    --background-elevated: #f8f9fa;
+    --background-secondary: #f1f3f5;
+
+    /* Text colors */
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+
+    /* Border & Divider */
+    --border-primary: #e9ecef;
+    --border-secondary: #dee2e6;
+
+    /* Semantic colors */
+    --error: #dc2626;
+    --success: #16a34a;
+    --warning: #ca8a04;
+    --info: #2563eb;
+  }
+
+  .dark {
+    /* Base colors - 상위 레이어일수록 더 밝은 색 사용 */
+    --background: #111111;
+    --background-elevated: #1f1f1f;
+    --background-secondary: #2d2d2d;
+
+    /* Text colors - 어두운 배경에서는 더 높은 대비를 위해 밝은 색상 사용 */
+    --text-primary: #e5e5e5;
+    --text-secondary: #a3a3a3;
+    --text-tertiary: #737373;
+
+    /* Border & Divider */
+    --border-primary: #404040;
+    --border-secondary: #525252;
+
+    /* Semantic colors - 40% 흰색 오버레이 효과 적용 */
+    --error: #ef4444;
+    --success: #22c55e;
+    --warning: #eab308;
+    --info: #3b82f6;
+  }
+}
