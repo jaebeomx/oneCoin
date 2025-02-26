@@ -17,6 +17,13 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { debounce } from 'lodash-es';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const CandleStick = (props) => {
   // console.log('CandleStick:', props);
@@ -97,26 +104,47 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
+// const prepareData = (data) => {
+//   return data.map(({ open, close, ...other }) => {
+//     return {
+//       ...other,
+//       openClose: [open, close],
+//     };
+//   });
+// };
 const prepareData = (data) => {
-  return data.map(({ open, close, ...other }) => {
-    return {
-      ...other,
-      openClose: [open, close],
-    };
-  });
+  return data
+    .map(({ open, close, ...other }) => {
+      return {
+        ...other,
+        openClose: [open, close],
+      };
+    })
+    .reverse(); // 데이터를 역순으로 변환
 };
 
 const Exchange = () => {
   const [chartData, setChartData] = useState([]);
   const [size, setSize] = useState(100);
   const [hoverHigh, setHoverHigh] = useState(null);
+  const [interval, setInterval] = useState('1d');
 
   const fetchChartData = () => {
-    fetch(`/api/public/v2/chart/KRW/BTC?interval=1m&size=${size}`)
+    fetch(`/api/public/v2/chart/KRW/BTC?interval=${interval}&size=${size}`)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setChartData(data.chart);
       });
+  };
+
+  const handleMouseDown = (e) => {
+    dragStartX.current = e.clientX; // 마우스 클릭 시작 위치 저장
+    isDragging.current = true;
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
   };
 
   const handleMouseMove = debounce((e) => {
@@ -125,9 +153,21 @@ const Exchange = () => {
     }
   }, 10); // 10ms 디바운스 설정
 
+  const handleWheel = debounce((e: WheelEvent) => {
+    e.preventDefault(); // 기본 스크롤 동작 방지
+
+    const delta = Math.sign(e.deltaY); // 줌인: -1, 줌아웃: 1
+    const changeAmount = 10; // 한 번에 변경할 데이터 수량
+
+    setSize((prevSize) => {
+      const newSize = Math.max(50, Math.min(1000, prevSize + delta * changeAmount));
+      return newSize;
+    });
+  }, 10); // 10ms 디바운스
+
   useEffect(() => {
     fetchChartData();
-  }, []); // size가 변경될 때마다 refetch
+  }, [size]); // size가 변경될 때마다 데이터 조회
 
   const data = prepareData(chartData); // open과 close를 배열로 묶어서 저장
 
@@ -172,11 +212,38 @@ const Exchange = () => {
         <button onClick={fetchChartData} className="rounded bg-primary px-4 py-2 text-background">
           BTC 조회하기
         </button>
+
+        <Select
+          value={interval}
+          onValueChange={(e) => {
+            setInterval(e);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Theme" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1m">1m</SelectItem>
+            <SelectItem value="3m">3m</SelectItem>
+            <SelectItem value="5m">5m</SelectItem>
+            <SelectItem value="10m">10m</SelectItem>
+            <SelectItem value="15m">15m</SelectItem>
+            <SelectItem value="30m">30m</SelectItem>
+            <SelectItem value="1h">1h</SelectItem>
+            <SelectItem value="2h">2h</SelectItem>
+            <SelectItem value="4h">4h</SelectItem>
+            <SelectItem value="6h">6h</SelectItem>
+            <SelectItem value="1d">1d</SelectItem>
+            <SelectItem value="1w">1w</SelectItem>
+            <SelectItem value="1mon">1mon</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div
         onWheel={(e) => {
-          console.log(e);
+          handleWheel(e);
         }}
+        // className="overflow-hidden" // 스크롤바 숨김
       >
         <BarChart
           // width={1000}
