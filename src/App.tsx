@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Menubar from './components/menubar';
+import Menubar from './components/MenuBar';
 import Exchange from './pages/Exchange';
 import Todo from './pages/Todo';
 import Test from './pages/Test';
