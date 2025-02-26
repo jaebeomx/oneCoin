@@ -16,6 +16,7 @@ import {
   Brush,
   ReferenceLine,
 } from 'recharts';
+import { debounce } from 'lodash-es';
 
 const CandleStick = (props) => {
   // console.log('CandleStick:', props);
@@ -118,6 +119,12 @@ const Exchange = () => {
       });
   };
 
+  const handleMouseMove = debounce((e) => {
+    if (e.activePayload && e.activePayload.length > 0) {
+      setHoverHigh(e.activePayload[0].payload.openClose[1]);
+    }
+  }, 10); // 10ms 디바운스 설정
+
   useEffect(() => {
     fetchChartData();
   }, []); // size가 변경될 때마다 refetch
@@ -177,10 +184,7 @@ const Exchange = () => {
           height={350}
           data={data}
           margin={{ top: 20, right: 30, left: 30, bottom: 5 }}
-          onMouseMove={(e) => {
-            console.log(e);
-            setHoverHigh(e.activePayload[0].payload.openClose[1]);
-          }}
+          onMouseMove={handleMouseMove}
         >
           {/* X축 Y축 설정 */}
           <XAxis dataKey="timestamp" />
@@ -198,10 +202,6 @@ const Exchange = () => {
             // fill="#8884d8"
             shape={<CandleStick />}
             isAnimationActive={false}
-            onMouseOver={(e) => {
-              console.log(e);
-              // setHoverHigh(e.high);
-            }}
             // label={{ position: 'top' }}
             // activeBar={{ strokeWidth: 0.5, stroke: 'red' }}
           >
