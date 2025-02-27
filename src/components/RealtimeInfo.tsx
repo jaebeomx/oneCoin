@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type CoinData = {
   ask_best_price: string;
@@ -29,7 +30,7 @@ function RealtimeInfo() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [coinData, setCoinData] = useState<CoinData | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const ws = new WebSocket('wss://stream.coinone.co.kr'); // 코인원 WebSocket 주소
@@ -59,9 +60,12 @@ function RealtimeInfo() {
       const response = JSON.parse(e.data);
       if (response.data) {
         console.log(response.data);
-        // 여기에 로딩 걸자
         setCoinData(response.data);
-        setIsLoading(false);
+
+        // 데이터가 완전한지 확인 (ask_best_price 등이 있는지) 이건 개선 필요
+        if (response.data.ask_best_price && response.data.last) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -82,6 +86,10 @@ function RealtimeInfo() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    console.log('코인데이터', coinData);
+  }, [coinData]);
 
   // 가격 변동률 계산 함수
   const calculatePriceChange = () => {
@@ -133,82 +141,117 @@ function RealtimeInfo() {
 
   return (
     <>
+      {/* 연결 상태 */}
       <div
-        className={`relative mb-3 w-[90px] px-3 py-1 text-xs font-semibold ${isConnected ? 'bg-green-100 text-green-950' : 'bg-red-100 text-red-950'}`}
+        className={`relative mb-3 w-[90px] px-3 py-1 text-xs font-semibold ${!isLoading ? 'bg-green-100 text-green-950' : 'bg-red-100 text-red-950'}`}
       >
         <span
-          className={`absolute -left-[6px] -top-[6px] h-3 w-3 animate-pulse rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}
+          className={`absolute -left-[6px] -top-[6px] h-3 w-3 animate-pulse rounded-full ${!isLoading ? 'bg-green-500' : 'bg-red-500'}`}
         ></span>
-        {isConnected ? '실시간 연결됨' : '연결 중...'}
+        {!isLoading ? '실시간 연결됨' : '연결 중...'}
       </div>
+
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* 현재가 카드 */}
         <Card className="overflow-hidden">
           <CardContent className="p-4">
-            <div className="flex flex-col gap-1">
-              <div className="text-4xl font-bold text-primary">
-                {coinData ? formatPrice(coinData.last) : '로딩 중...'}
-                <span className="text-sm">KRW</span>
-                <span className="ml-1 text-sm text-text-secondary">
-                  ({coinData ? formatTimestamp(coinData.timestamp) : ''} 기준)
-                </span>
+            {isLoading ? (
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-10 w-3/4" />
+                <Skeleton className="h-6 w-1/2" />
               </div>
-              {coinData && (
-                <div
-                  className={`flex items-center gap-2 text-lg font-medium ${isPositive ? 'text-red-600' : 'text-blue-600'}`}
-                >
-                  <span>
-                    {isPositive ? '▲' : '▼'} {change}%
-                  </span>
-                  <span className="text-sm">
-                    {isPositive ? '+' : '-'}
-                    {formatPrice(priceChange)}
+            ) : (
+              <div className="flex flex-col gap-1">
+                <div className="text-4xl font-bold text-primary">
+                  {formatPrice(coinData?.last || '0')}
+                  <span className="text-sm">KRW</span>
+                  <span className="ml-1 text-sm text-text-secondary">
+                    ({coinData ? formatTimestamp(coinData.timestamp) : ''} 기준)
                   </span>
                 </div>
-              )}
-            </div>
+                {coinData && (
+                  <div
+                    className={`flex items-center gap-2 text-lg font-medium ${isPositive ? 'text-red-600' : 'text-blue-600'}`}
+                  >
+                    <span>
+                      {isPositive ? '▲' : '▼'} {change}%
+                    </span>
+                    <span className="text-sm">
+                      {isPositive ? '+' : '-'}
+                      {formatPrice(priceChange)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* 고가/저가 카드 */}
         <Card className="overflow-hidden">
           <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <div className="text-sm text-muted-foreground">고가</div>
-                <div className="text-lg font-medium">
-                  {coinData ? formatPrice(coinData.high) : '-'}
+            {isLoading ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">고가</div>
+                  <Skeleton className="h-6 w-full" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">저가</div>
+                  <Skeleton className="h-6 w-full" />
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <div className="text-sm text-muted-foreground">저가</div>
-                <div className="text-lg font-medium">
-                  {coinData ? formatPrice(coinData.low) : '-'}
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">고가</div>
+                  <div className="text-lg font-medium text-red-600">
+                    {formatPrice(coinData?.high || '0')}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">저가</div>
+                  <div className="text-lg font-medium text-blue-600">
+                    {formatPrice(coinData?.low || '0')}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
         {/* 거래량 카드 */}
         <Card className="overflow-hidden">
           <CardContent className="p-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <div className="text-sm text-muted-foreground">거래량(24H)</div>
-                <div className="text-lg font-medium">
-                  {coinData ? formatVolume(coinData.target_volume) : '-'}
-                  <span className="text-xs">BTC</span>
+            {isLoading ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">거래량(24H)</div>
+                  <Skeleton className="h-6 w-full" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">거래대금(24H)</div>
+                  <Skeleton className="h-6 w-full" />
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <div className="text-sm text-muted-foreground">거래대금(24H)</div>
-                <div className="text-lg font-medium">
-                  {coinData ? formatVolume(coinData.quote_volume) : '-'}
-                  <span className="text-xs">KRW</span>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">거래량(24H)</div>
+                  <div className="text-lg font-medium">
+                    {formatVolume(coinData?.target_volume || '0')}
+                    <span className="text-xs">BTC</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm text-text-primary">거래대금(24H)</div>
+                  <div className="text-lg font-medium">
+                    {formatVolume(coinData?.quote_volume || '0')}
+                    <span className="text-xs">KRW</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>

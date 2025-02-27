@@ -139,7 +139,6 @@ const Exchange = () => {
     fetch(`/api/public/v2/chart/KRW/BTC?interval=${interval}&size=${size}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setChartData(data.chart);
       });
   };
@@ -278,7 +277,7 @@ const Exchange = () => {
             }}
           >
             <BarChart
-              width={1050}
+              width={1200}
               height={350}
               data={data}
               margin={{ bottom: 5, right: 40 }}
