@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bar, XAxis, YAxis, BarChart, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
+import {
+  Bar,
+  XAxis,
+  YAxis,
+  BarChart,
+  Tooltip,
+  CartesianGrid,
+  ReferenceLine,
+  Rectangle,
+} from 'recharts';
 import { debounce } from 'lodash-es';
 import {
   Select,
@@ -101,6 +110,12 @@ const CustomTooltip = (props: any) => {
     );
   }
   return null;
+};
+
+const CustomCursor = (props: any) => {
+  // 사용 가능 props bottom, brushButtom, className, fill, height, left, payload, payloadIndex, pointerEvents, right, stroke, top, width, x, y
+  const { x, y, height } = props;
+  return <Rectangle fill="red" x={x + 6} y={y} width={1} height={height} />; // 두께 조정으로 인한 가운데가 안맞음 현상..
 };
 
 const prepareData = (data: CandleStickData[]) => {
@@ -284,7 +299,12 @@ const Exchange = () => {
                 tickMargin={10}
               />
 
-              <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
+              <Tooltip
+                content={<CustomTooltip />}
+                isAnimationActive={false}
+                // cursor={{ strokeWidth: 0.5, color: 'red' }} // bar 호버 시 툴팁 세로 강조 박스
+                cursor={<CustomCursor />}
+              />
 
               {/* 그래프 눈금 설정 */}
               <CartesianGrid />
