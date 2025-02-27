@@ -14,11 +14,13 @@ function Menubar() {
   }, [isDarkMode]);
 
   return (
-    <div>
-      <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={toggleTheme} />
-      <label htmlFor="theme-mode" className="select-none text-foreground">
-        다크 모드
-      </label>
+    <div className="w-full">
+      <div className="mt-2 flex items-center justify-start gap-2 px-5">
+        <Switch id="theme-mode" checked={isDarkMode} onCheckedChange={toggleTheme} />
+        <label htmlFor="theme-mode" className="select-none text-foreground">
+          다크 모드
+        </label>
+      </div>
       <Outlet />
     </div>
   );

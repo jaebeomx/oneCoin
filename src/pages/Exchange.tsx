@@ -1,21 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Bar,
-  ComposedChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Cell,
-  BarChart,
-  Tooltip,
-  Legend,
-  Line,
-  LineChart,
-  CartesianGrid,
-  Brush,
-  ReferenceLine,
-} from 'recharts';
+import { Bar, XAxis, YAxis, BarChart, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 import { debounce } from 'lodash-es';
 import {
   Select,
@@ -24,11 +9,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { ChartCandlestick, ChartNoAxesCombined } from 'lucide-react';
 
-const CandleStick = (props) => {
-  // console.log('CandleStick:', props);
+type CandleStickData = {
+  close: string;
+  high: string;
+  low: string;
+  open: string;
+  quote_volume: string;
+  target_volume: string;
+  timestamp: number;
+};
+
+const CandleStick = (props: any) => {
   const {
-    fill,
     x,
     y,
     width,
@@ -43,7 +40,8 @@ const CandleStick = (props) => {
   const ratio = Math.abs(height / (open - close));
 
   return (
-    <g stroke={color} fill={color} strokeWidth="2">
+    <g stroke={color} fill={color} strokeWidth="1.5">
+      {/* rect */}
       <path
         d={`
           M ${x},${y}
@@ -90,7 +88,8 @@ const CandleStick = (props) => {
 };
 
 // 커스텀 툴팁 컴포넌트 정의
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = (props: any) => {
+  const { active, payload } = props;
   if (active && payload && payload.length) {
     const { timestamp, openClose } = payload[0].payload; // 필요한 데이터 추출
     return (
@@ -104,15 +103,7 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-// const prepareData = (data) => {
-//   return data.map(({ open, close, ...other }) => {
-//     return {
-//       ...other,
-//       openClose: [open, close],
-//     };
-//   });
-// };
-const prepareData = (data) => {
+const prepareData = (data: CandleStickData[]) => {
   return data
     .map(({ open, close, ...other }) => {
       return {
@@ -138,22 +129,13 @@ const Exchange = () => {
       });
   };
 
-  const handleMouseDown = (e) => {
-    dragStartX.current = e.clientX; // 마우스 클릭 시작 위치 저장
-    isDragging.current = true;
-  };
-
-  const handleMouseUp = () => {
-    isDragging.current = false;
-  };
-
   const handleMouseMove = debounce((e) => {
     if (e.activePayload && e.activePayload.length > 0) {
       setHoverHigh(e.activePayload[0].payload.openClose[1]);
     }
   }, 10); // 10ms 디바운스 설정
 
-  const handleWheel = debounce((e: WheelEvent) => {
+  const handleWheel = debounce((e: React.WheelEvent<HTMLDivElement>) => {
     e.preventDefault(); // 기본 스크롤 동작 방지
 
     const delta = Math.sign(e.deltaY); // 줌인: -1, 줌아웃: 1
@@ -170,115 +152,117 @@ const Exchange = () => {
   }, [size]); // size가 변경될 때마다 데이터 조회
 
   const data = prepareData(chartData); // open과 close를 배열로 묶어서 저장
-
-  // const data = prepareData(rawData); // open과 close를 배열로 묶어서 저장
-
-  data.reduce((acc, item) => console.log(item), 0); // 각각의 data 출력
+  console.log('prepared data', data);
 
   // data 배열에서 가장 낮은 값을 찾음
   const minValue = data.reduce((minValue, { low, openClose: [open, close] }) => {
-    const currentMin = Math.min(low, open, close);
-    return minValue === null || currentMin < minValue ? currentMin : minValue;
-  }, null);
+    const currentMin = Math.min(Number(low), Number(open), Number(close));
+    return Math.min(minValue, currentMin); // minValue가 null이 아닌 경우에만 비교
+  }, Number.POSITIVE_INFINITY); // 초기값을 양의 무한대로 설정
 
   // data 배열에서 가장 높은 값을 찾음
   const maxValue = data.reduce((maxValue, { high, openClose: [open, close] }) => {
-    const currentMax = Math.max(high, open, close);
-    return currentMax > maxValue ? currentMax : maxValue;
-  }, minValue);
-
-  // console.log(data);
-  // console.log(minValue, maxValue);
+    const currentMax = Math.max(Number(high), Number(open), Number(close));
+    return Math.max(maxValue, currentMax); // maxValue가 음의 무한대가 아닌 경우에만 비교
+  }, Number.NEGATIVE_INFINITY); // 초기값을 음의 무한대로 설정
 
   return (
     <div className="p-3">
-      <div className="mb-4 flex items-center gap-2">
-        <input
-          type="number"
-          value={size}
-          onChange={(e) => {
-            const newSize = e.target.value; // 입력값을 문자열로 가져옴
-            setSize(Number(newSize));
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              fetchChartData();
-            }
-          }}
-          className="rounded border bg-primary p-2 text-background"
-          min={0}
-          max={1000}
-        />
-        <button onClick={fetchChartData} className="rounded bg-primary px-4 py-2 text-background">
-          BTC 조회하기
-        </button>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ChartNoAxesCombined />
+            Bitcoin Chart
+            <div className="ml-2 animate-pulse text-[14px] font-bold text-red-500">🚨 실시간</div>
+          </CardTitle>
+          <CardDescription>최대 500개의 데이터를 조회할 수 있습니다.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <div className="flex w-full items-center gap-[10px]">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" placeholder="Coin Name" autoComplete="off" />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="framework">Interval</Label>
+                <Select
+                  value={interval}
+                  onValueChange={(e) => {
+                    console.log(e);
+                    setInterval(e);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Interval" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      '1m',
+                      '3m',
+                      '5m',
+                      '15m',
+                      '30m',
+                      '1h',
+                      '2h',
+                      '4h',
+                      '6h',
+                      '1d',
+                      '1w',
+                      '1mon',
+                    ].map((value) => (
+                      <SelectItem key={value} value={value}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="name">Fetch</Label>
+                <div className="flex flex-col space-y-1.5">
+                  <Button onClick={fetchChartData}>조회하기</Button>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div className="my-2 flex items-center gap-2">
+            <ChartCandlestick strokeWidth={1.5} color="#ff0000" />
+            <div>{size}봉</div>
+          </div>
 
-        <Select
-          value={interval}
-          onValueChange={(e) => {
-            setInterval(e);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Theme" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1m">1m</SelectItem>
-            <SelectItem value="3m">3m</SelectItem>
-            <SelectItem value="5m">5m</SelectItem>
-            <SelectItem value="10m">10m</SelectItem>
-            <SelectItem value="15m">15m</SelectItem>
-            <SelectItem value="30m">30m</SelectItem>
-            <SelectItem value="1h">1h</SelectItem>
-            <SelectItem value="2h">2h</SelectItem>
-            <SelectItem value="4h">4h</SelectItem>
-            <SelectItem value="6h">6h</SelectItem>
-            <SelectItem value="1d">1d</SelectItem>
-            <SelectItem value="1w">1w</SelectItem>
-            <SelectItem value="1mon">1mon</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div
-        onWheel={(e) => {
-          handleWheel(e);
-        }}
-        // className="overflow-hidden" // 스크롤바 숨김
-      >
-        <BarChart
-          // width={1000}
-          width={window.innerWidth}
-          height={350}
-          data={data}
-          margin={{ top: 20, right: 30, left: 30, bottom: 5 }}
-          onMouseMove={handleMouseMove}
-        >
-          {/* X축 Y축 설정 */}
-          <XAxis dataKey="timestamp" />
-          <YAxis domain={[minValue, maxValue]} />
-
-          <Tooltip content={<CustomTooltip />} />
-
-          {/* 그래프 눈금 설정 */}
-          <CartesianGrid />
-
-          {/* 제공된 데이터 배열에서 특정 키를 참조하여 각 막대의 값을 결정 */}
-          {/* 각 막대의 높이가 openClose 값을 기반으로 렌더링 */}
-          <Bar
-            dataKey="openClose"
-            // fill="#8884d8"
-            shape={<CandleStick />}
-            isAnimationActive={false}
-            // label={{ position: 'top' }}
-            // activeBar={{ strokeWidth: 0.5, stroke: 'red' }}
+          {/* 코인 차트 */}
+          <div
+            onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
+              handleWheel(e);
+            }}
           >
-            {/* {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={'black'} />
-            ))} */}
-          </Bar>
-          {hoverHigh !== null && <ReferenceLine y={hoverHigh} stroke="red" strokeDasharray="3 3" />}
-        </BarChart>
-      </div>
+            <BarChart
+              width={1000}
+              height={350}
+              data={data}
+              margin={{ right: 30, bottom: 5 }}
+              onMouseMove={handleMouseMove}
+            >
+              {/* X축 Y축 설정 */}
+              <XAxis dataKey="timestamp" />
+              <YAxis domain={[minValue, maxValue]} orientation="right" />
+
+              <Tooltip content={<CustomTooltip />} />
+
+              {/* 그래프 눈금 설정 */}
+              <CartesianGrid />
+
+              {/* 제공된 데이터 배열에서 특정 키를 참조하여 각 막대의 값을 결정 */}
+              {/* 각 막대의 높이가 openClose 값을 기반으로 렌더링 */}
+              <Bar dataKey="openClose" shape={<CandleStick />} isAnimationActive={false}></Bar>
+              {hoverHigh !== null && (
+                <ReferenceLine y={hoverHigh} stroke="red" strokeDasharray="3 3" />
+              )}
+            </BarChart>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
