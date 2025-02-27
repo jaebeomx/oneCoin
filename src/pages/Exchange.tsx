@@ -35,7 +35,7 @@ const CandleStick = (props: any) => {
     openClose: [open, close],
   } = props;
 
-  const isGrowing = open < close;
+  const isGrowing = Number(open) < Number(close);
   const color = isGrowing ? 'red' : 'blue';
   const ratio = Math.abs(height / (open - close));
 
@@ -93,10 +93,10 @@ const CustomTooltip = (props: any) => {
   if (active && payload && payload.length) {
     const { timestamp, openClose } = payload[0].payload; // 필요한 데이터 추출
     return (
-      <div className="custom-tooltip">
-        <p>{`시간: ${new Date(timestamp).toLocaleString()}`}</p>
-        <p>{`Open: ${openClose[0]}`}</p>
-        <p>{`Close: ${openClose[1]}`}</p>
+      <div className="rounded-lg border border-secondary bg-background-elevated p-3 shadow-lg">
+        <p className="text-center text-sm font-semibold text-primary">{`${new Date(timestamp).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric' })}`}</p>
+        <p className="text-teritary text-sm">{`시가: ${Number(openClose[0]).toLocaleString()}원`}</p>
+        <p className="text-teritary text-sm">{`종가: ${Number(openClose[1]).toLocaleString()}원`}</p>
       </div>
     );
   }
@@ -129,6 +129,22 @@ const Exchange = () => {
       });
   };
 
+  // 차트 확대 함수 (데이터 감소)
+  const handleZoomIn = () => {
+    setSize((prevSize) => {
+      const newSize = Math.max(50, prevSize - 50);
+      return newSize;
+    });
+  };
+
+  // 차트 축소 함수 (데이터 증가)
+  const handleZoomOut = () => {
+    setSize((prevSize) => {
+      const newSize = Math.min(500, prevSize + 50);
+      return newSize;
+    });
+  };
+
   const handleMouseMove = debounce((e) => {
     if (e.activePayload && e.activePayload.length > 0) {
       setHoverHigh(e.activePayload[0].payload.openClose[1]);
@@ -152,7 +168,6 @@ const Exchange = () => {
   }, [size]); // size가 변경될 때마다 데이터 조회
 
   const data = prepareData(chartData); // open과 close를 배열로 묶어서 저장
-  console.log('prepared data', data);
 
   // data 배열에서 가장 낮은 값을 찾음
   const minValue = data.reduce((minValue, { low, openClose: [open, close] }) => {
@@ -173,7 +188,7 @@ const Exchange = () => {
           <CardTitle className="flex items-center gap-2">
             <ChartNoAxesCombined />
             Bitcoin Chart
-            <div className="ml-2 animate-pulse text-[14px] font-bold text-red-500">🚨 실시간</div>
+            <div className="ml-2 animate-pulse text-[14px] font-bold text-red-700">🚨 실시간</div>
           </CardTitle>
           <CardDescription>최대 500개의 데이터를 조회할 수 있습니다.</CardDescription>
         </CardHeader>
@@ -221,7 +236,14 @@ const Exchange = () => {
               <div>
                 <Label htmlFor="name">Fetch</Label>
                 <div className="flex flex-col space-y-1.5">
-                  <Button onClick={fetchChartData}>조회하기</Button>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault(); // form 기본동작 방지
+                      fetchChartData();
+                    }}
+                  >
+                    조회하기
+                  </Button>
                 </div>
               </div>
             </div>
@@ -233,22 +255,36 @@ const Exchange = () => {
 
           {/* 코인 차트 */}
           <div
+            className="relative w-[1050px]"
             onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
               handleWheel(e);
             }}
           >
             <BarChart
-              width={1000}
+              width={1050}
               height={350}
               data={data}
-              margin={{ right: 30, bottom: 5 }}
+              margin={{ bottom: 5, right: 40 }}
               onMouseMove={handleMouseMove}
             >
               {/* X축 Y축 설정 */}
-              <XAxis dataKey="timestamp" />
-              <YAxis domain={[minValue, maxValue]} orientation="right" />
+              <XAxis
+                dataKey="timestamp"
+                tick={{ fontSize: 12 }}
+                tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
+                tickSize={5}
+                tickMargin={10}
+              />
+              <YAxis
+                domain={[minValue, maxValue]}
+                orientation="right"
+                tickFormatter={(value) => `₩${value.toLocaleString()}`}
+                tick={{ fontSize: 12 }}
+                tickSize={5}
+                tickMargin={10}
+              />
 
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
 
               {/* 그래프 눈금 설정 */}
               <CartesianGrid />
@@ -260,6 +296,14 @@ const Exchange = () => {
                 <ReferenceLine y={hoverHigh} stroke="red" strokeDasharray="3 3" />
               )}
             </BarChart>
+            <div className="absolute bottom-[20%] left-[50%] flex -translate-x-1/2 transform items-center gap-1 transition duration-200 hover:scale-110">
+              <Button variant="adjust" size="sm" onClick={handleZoomOut}>
+                -
+              </Button>
+              <Button variant="adjust" size="sm" onClick={handleZoomIn}>
+                +
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
