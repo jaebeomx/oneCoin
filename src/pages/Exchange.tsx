@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ChartCandlestick, ChartNoAxesCombined } from 'lucide-react';
-
+import RealtimeInfo from '@/components/RealtimeInfo';
 type CandleStickData = {
   close: string;
   high: string;
@@ -208,6 +208,8 @@ const Exchange = () => {
           <CardDescription>최대 500개의 데이터를 조회할 수 있습니다.</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* 실시간 코인 정보 (웹소켓) */}
+          <RealtimeInfo />
           <form>
             <div className="flex w-full items-center gap-[10px]">
               <div className="flex flex-col space-y-1.5">
