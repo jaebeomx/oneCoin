@@ -45,7 +45,7 @@ const CandleStick = (props: any) => {
   } = props;
 
   const isGrowing = Number(open) < Number(close);
-  const color = isGrowing ? 'red' : 'blue';
+  const color = isGrowing ? '#dc2626' : '#2563eb';
   const ratio = Math.abs(height / (open - close));
 
   return (
@@ -172,7 +172,7 @@ const Exchange = () => {
     const changeAmount = 10; // 한 번에 변경할 데이터 수량
 
     setSize((prevSize) => {
-      const newSize = Math.max(50, Math.min(1000, prevSize + delta * changeAmount));
+      const newSize = Math.max(50, Math.min(500, prevSize + delta * changeAmount)); // 최대 500으로 제한
       return newSize;
     });
   }, 10); // 10ms 디바운스

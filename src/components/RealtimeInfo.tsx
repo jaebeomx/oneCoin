@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type CoinData = {
   ask_best_price: string;
@@ -27,9 +28,8 @@ type CoinData = {
 };
 
 function RealtimeInfo() {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [coinData, setCoinData] = useState<CoinData | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  //   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -38,8 +38,7 @@ function RealtimeInfo() {
     // 연결이 열리면
     ws.onopen = () => {
       console.log('웹소켓 연결됨,', ws);
-      setIsConnected(true);
-      setSocket(ws);
+      //   setIsConnected(true);
 
       // 구독 메시지 생성(예: BTC-KRW 체결 데이터)
       const subscribeMessage = {
@@ -59,7 +58,7 @@ function RealtimeInfo() {
     ws.onmessage = (e) => {
       const response = JSON.parse(e.data);
       if (response.data) {
-        console.log(response.data);
+        console.log('소켓 응답데이터', response.data);
         setCoinData(response.data);
 
         // 데이터가 완전한지 확인 (ask_best_price 등이 있는지) 이건 개선 필요
@@ -76,7 +75,6 @@ function RealtimeInfo() {
 
     ws.onclose = () => {
       console.log('웹소켓 연결 해제');
-      setSocket(null);
     };
 
     // 컴포넌트 언마운트 시 WebSocket 연결 해제
@@ -114,11 +112,11 @@ function RealtimeInfo() {
   const formatVolume = (volume: string) => {
     const num = parseFloat(volume);
     if (num >= 1000000000) {
-      return (num / 1000000000).toFixed(2) + 'B';
+      return (num / 1000000000).toFixed(2) + 'B'; // 10억
     } else if (num >= 1000000) {
-      return (num / 1000000).toFixed(2) + 'M';
+      return (num / 1000000).toFixed(2) + 'M'; // 100만
     } else if (num >= 1000) {
-      return (num / 1000).toFixed(2) + 'K';
+      return (num / 1000).toFixed(2) + 'K'; // 1000
     }
     return num.toFixed(2);
   };
@@ -148,7 +146,7 @@ function RealtimeInfo() {
         <span
           className={`absolute -left-[6px] -top-[6px] h-3 w-3 animate-pulse rounded-full ${!isLoading ? 'bg-green-500' : 'bg-red-500'}`}
         ></span>
-        {!isLoading ? '실시간 연결됨' : '연결 중...'}
+        {!isLoading ? '실시간 연결됨' : '소켓 연결 중'}
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -162,7 +160,9 @@ function RealtimeInfo() {
               </div>
             ) : (
               <div className="flex flex-col gap-1">
-                <div className="text-4xl font-bold text-primary">
+                <div
+                  className={`text-4xl font-bold ${isPositive ? 'text-red-600' : 'text-blue-600'}`}
+                >
                   {formatPrice(coinData?.last || '0')}
                   <span className="text-sm">KRW</span>
                   <span className="ml-1 text-sm text-text-secondary">
@@ -236,19 +236,35 @@ function RealtimeInfo() {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger className="flex flex-col gap-1 text-left">
+                      <div className="text-sm text-text-primary">거래량(24H)</div>
+                      <div className="text-lg font-medium">
+                        {formatVolume(coinData?.target_volume || '0')}
+                        <span className="text-xs">BTC</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" sideOffset={10} align="start">
+                      최근 24시간 기준 종목 체결량 (종목)
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div className="flex flex-col gap-1">
-                  <div className="text-sm text-text-primary">거래량(24H)</div>
-                  <div className="text-lg font-medium">
-                    {formatVolume(coinData?.target_volume || '0')}
-                    <span className="text-xs">BTC</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="text-sm text-text-primary">거래대금(24H)</div>
-                  <div className="text-lg font-medium">
-                    {formatVolume(coinData?.quote_volume || '0')}
-                    <span className="text-xs">KRW</span>
-                  </div>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger className="flex flex-col gap-1 text-left">
+                        <div className="text-sm text-text-primary">거래대금(24H)</div>
+                        <div className="text-lg font-medium">
+                          {formatVolume(coinData?.quote_volume || '0')}
+                          <span className="text-xs">KRW</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" sideOffset={10} align="start">
+                        최근 24시간 기준 종목 체결 금액 (원화)
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             )}
