@@ -43,9 +43,10 @@ const CandleStick = (props: any) => {
     low,
     high,
     openClose: [open, close],
+    payload,
   } = props;
 
-  const isGrowing = Number(open) < Number(close);
+  const isGrowing = payload.isGrowing;
   const color = isGrowing ? '#dc2626' : '#2563eb';
   const ratio = Math.abs(height / (open - close));
 
@@ -125,9 +126,26 @@ const prepareData = (data: CandleStickData[]) => {
       return {
         ...other,
         openClose: [open, close],
+        isGrowing: Number(open) < Number(close),
       };
     })
     .reverse(); // 데이터를 역순으로 변환
+};
+
+const VolumeStick = (props: any) => {
+  const { x, y, width, height, payload } = props;
+
+  // payload에서 상승/하락 정보 추출
+  const isGrowing = payload.isGrowing;
+
+  // 상승/하락에 따른 색상 설정
+  const color = isGrowing ? '#dc2626' : '#2563eb';
+
+  return (
+    <g fill={color}>
+      <rect x={x} y={y} width={width} height={height} />
+    </g>
+  );
 };
 
 const Exchange = () => {
@@ -196,6 +214,14 @@ const Exchange = () => {
     const currentMax = Math.max(Number(high), Number(open), Number(close));
     return Math.max(maxValue, currentMax); // maxValue가 음의 무한대가 아닌 경우에만 비교
   }, Number.NEGATIVE_INFINITY); // 초기값을 음의 무한대로 설정
+
+  // 최대 거래량 계산
+  const maxVolume = useMemo(() => {
+    if (!data.length) return 0;
+    return data.reduce((max, item) => {
+      return Math.max(max, Number(item.target_volume));
+    }, 0);
+  }, [data]);
 
   return (
     <div className="p-3">
@@ -280,14 +306,7 @@ const Exchange = () => {
           >
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={data} margin={{ bottom: 5, right: 40 }} onMouseMove={handleMouseMove}>
-                {/* X축 Y축 설정 */}
-                <XAxis
-                  dataKey="timestamp"
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
-                  tickSize={5}
-                  tickMargin={10}
-                />
+                {/* Y축 설정 */}
                 <YAxis
                   domain={[minValue, maxValue]}
                   orientation="right"
@@ -300,7 +319,6 @@ const Exchange = () => {
                 <Tooltip
                   content={<CustomTooltip />}
                   isAnimationActive={false}
-                  // cursor={{ strokeWidth: 0.5, color: 'red' }} // bar 호버 시 툴팁 세로 강조 박스
                   cursor={<CustomCursor />}
                 />
 
@@ -315,7 +333,39 @@ const Exchange = () => {
                 )}
               </BarChart>
             </ResponsiveContainer>
-            <div className="absolute bottom-[20%] left-[50%] flex transform items-center gap-1 transition duration-200 hover:scale-110">
+
+            {/* 거래량(quote_volume) 차트 추가 */}
+            <ResponsiveContainer width="100%" height={90}>
+              <BarChart data={data} margin={{ bottom: 5, right: 40 }}>
+                {/* X축: 타임스탬프 적용 */}
+                <XAxis
+                  dataKey="timestamp"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
+                  tickSize={5}
+                  tickMargin={10}
+                />
+
+                {/* Y축: 거래량 */}
+                <YAxis
+                  domain={[0, maxVolume]}
+                  orientation="right"
+                  tickSize={5}
+                  tickMargin={10}
+                  tick={{ fontSize: 12 }}
+                />
+
+                <Tooltip
+                  labelFormatter={(label) => `날짜: ${new Date(label).toLocaleDateString()}`}
+                />
+
+                {/* 🚀 거래량을 나타내는 막대 그래프 */}
+                <Bar dataKey="target_volume" shape={<VolumeStick />} isAnimationActive={false} />
+              </BarChart>
+            </ResponsiveContainer>
+
+            {/* 줌인 줌아웃 버튼 */}
+            <div className="absolute bottom-[30%] left-[45%] flex transform items-center gap-1 transition duration-200 hover:scale-110">
               <Button variant="adjust" size="sm" onClick={handleZoomOut} title="줌 아웃 (축소)">
                 -
               </Button>
