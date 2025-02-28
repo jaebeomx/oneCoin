@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   ReferenceLine,
   Rectangle,
+  ResponsiveContainer,
 } from 'recharts';
 import { debounce } from 'lodash-es';
 import {
@@ -210,7 +211,7 @@ const Exchange = () => {
           {/* 실시간 코인 정보 (웹소켓) */}
           <RealtimeInfo />
           <form>
-            <div className="flex w-full items-center gap-[10px]">
+            <div className="flex w-full flex-wrap items-center gap-[10px]">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" placeholder="Coin Name" autoComplete="off" />
@@ -269,59 +270,55 @@ const Exchange = () => {
             <div>{size}봉</div>
           </div>
 
-          {/* 코인 차트 */}
+          {/* 코인 차트 - 반응형으로 변경*/}
           <div
-            className="relative w-[1050px]"
+            className="relative w-full"
             onWheel={(e: React.WheelEvent<HTMLDivElement>) => {
               handleWheel(e);
             }}
           >
-            <BarChart
-              width={1200}
-              height={350}
-              data={data}
-              margin={{ bottom: 5, right: 40 }}
-              onMouseMove={handleMouseMove}
-            >
-              {/* X축 Y축 설정 */}
-              <XAxis
-                dataKey="timestamp"
-                tick={{ fontSize: 12 }}
-                tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
-                tickSize={5}
-                tickMargin={10}
-              />
-              <YAxis
-                domain={[minValue, maxValue]}
-                orientation="right"
-                tickFormatter={(value) => `₩${value.toLocaleString()}`}
-                tick={{ fontSize: 12 }}
-                tickSize={5}
-                tickMargin={10}
-              />
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={data} margin={{ bottom: 5, right: 40 }} onMouseMove={handleMouseMove}>
+                {/* X축 Y축 설정 */}
+                <XAxis
+                  dataKey="timestamp"
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(timestamp) => new Date(timestamp).toLocaleDateString()}
+                  tickSize={5}
+                  tickMargin={10}
+                />
+                <YAxis
+                  domain={[minValue, maxValue]}
+                  orientation="right"
+                  tickFormatter={(value) => `₩${value.toLocaleString()}`}
+                  tick={{ fontSize: 12 }}
+                  tickSize={5}
+                  tickMargin={10}
+                />
 
-              <Tooltip
-                content={<CustomTooltip />}
-                isAnimationActive={false}
-                // cursor={{ strokeWidth: 0.5, color: 'red' }} // bar 호버 시 툴팁 세로 강조 박스
-                cursor={<CustomCursor />}
-              />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  isAnimationActive={false}
+                  // cursor={{ strokeWidth: 0.5, color: 'red' }} // bar 호버 시 툴팁 세로 강조 박스
+                  cursor={<CustomCursor />}
+                />
 
-              {/* 그래프 눈금 설정 */}
-              <CartesianGrid />
+                {/* 그래프 눈금 설정 */}
+                <CartesianGrid />
 
-              {/* 제공된 데이터 배열에서 특정 키를 참조하여 각 막대의 값을 결정 */}
-              {/* 각 막대의 높이가 openClose 값을 기반으로 렌더링 */}
-              <Bar dataKey="openClose" shape={<CandleStick />} isAnimationActive={false}></Bar>
-              {hoverHigh !== null && (
-                <ReferenceLine y={hoverHigh} stroke="red" strokeDasharray="3 3" />
-              )}
-            </BarChart>
-            <div className="absolute bottom-[20%] left-[50%] flex -translate-x-1/2 transform items-center gap-1 transition duration-200 hover:scale-110">
-              <Button variant="adjust" size="sm" onClick={handleZoomOut}>
+                {/* 제공된 데이터 배열에서 특정 키를 참조하여 각 막대의 값을 결정 */}
+                {/* 각 막대의 높이가 openClose 값을 기반으로 렌더링 */}
+                <Bar dataKey="openClose" shape={<CandleStick />} isAnimationActive={false}></Bar>
+                {hoverHigh !== null && (
+                  <ReferenceLine y={hoverHigh} stroke="red" strokeDasharray="3 3" />
+                )}
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="absolute bottom-[20%] left-[50%] flex transform items-center gap-1 transition duration-200 hover:scale-110">
+              <Button variant="adjust" size="sm" onClick={handleZoomOut} title="줌 아웃 (축소)">
                 -
               </Button>
-              <Button variant="adjust" size="sm" onClick={handleZoomIn}>
+              <Button variant="adjust" size="sm" onClick={handleZoomIn} title="줌 인 (확대)">
                 +
               </Button>
             </div>
