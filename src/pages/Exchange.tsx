@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Bar,
@@ -136,29 +136,29 @@ const Exchange = () => {
   const [hoverHigh, setHoverHigh] = useState(null);
   const [interval, setInterval] = useState('1d');
 
-  const fetchChartData = () => {
+  const fetchChartData = useCallback(() => {
     fetch(`/api/public/v2/chart/KRW/BTC?interval=${interval}&size=${size}`)
       .then((res) => res.json())
       .then((data) => {
         setChartData(data.chart);
       });
-  };
+  }, [interval, size]);
 
   // 차트 확대 함수 (데이터 감소)
-  const handleZoomIn = () => {
+  const handleZoomIn = useCallback(() => {
     setSize((prevSize) => {
       const newSize = Math.max(50, prevSize - 50);
       return newSize;
     });
-  };
+  }, []);
 
   // 차트 축소 함수 (데이터 증가)
-  const handleZoomOut = () => {
+  const handleZoomOut = useCallback(() => {
     setSize((prevSize) => {
       const newSize = Math.min(500, prevSize + 50);
       return newSize;
     });
-  };
+  }, []);
 
   const handleMouseMove = debounce((e) => {
     if (e.activePayload && e.activePayload.length > 0) {
@@ -182,7 +182,8 @@ const Exchange = () => {
     fetchChartData();
   }, [size]); // size가 변경될 때마다 데이터 조회
 
-  const data = prepareData(chartData); // open과 close를 배열로 묶어서 저장
+  // 데이터 처리 메모이제이션
+  const data = useMemo(() => prepareData(chartData), [chartData]); // open과 close를 배열로 묶어서 저장
 
   // data 배열에서 가장 낮은 값을 찾음
   const minValue = data.reduce((minValue, { low, openClose: [open, close] }) => {

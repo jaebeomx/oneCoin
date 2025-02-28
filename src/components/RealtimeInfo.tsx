@@ -59,7 +59,7 @@ function RealtimeInfo() {
     ws.onmessage = (e) => {
       const response = JSON.parse(e.data);
       if (response.data) {
-        console.log('소켓 응답데이터', response.data);
+        // console.log('소켓 응답데이터', response.data);
         setCoinData(response.data);
 
         // 데이터가 완전한지 확인 (ask_best_price 등이 있는지) 이건 개선 필요
@@ -86,10 +86,6 @@ function RealtimeInfo() {
     };
   }, []);
 
-  useEffect(() => {
-    console.log('코인데이터', coinData);
-  }, [coinData]);
-
   // 가격 변동률 계산 함수
   const calculatePriceChange = () => {
     if (!coinData) return { change: 0, isPositive: false };
@@ -107,19 +103,6 @@ function RealtimeInfo() {
   // 가격 포맷팅 함수
   const formatPrice = (price: string) => {
     return new Intl.NumberFormat('ko-KR').format(parseFloat(price));
-  };
-
-  // 거래량 포맷팅 함수
-  const formatVolume = (volume: string) => {
-    const num = parseFloat(volume);
-    if (num >= 1000000000) {
-      return (num / 1000000000).toFixed(2) + 'B'; // 10억
-    } else if (num >= 1000000) {
-      return (num / 1000000).toFixed(2) + 'M'; // 100만
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(2) + 'K'; // 1000
-    }
-    return num.toFixed(2);
   };
 
   // 타임스탬프를 시간 문자열로 변환하는 함수
@@ -208,13 +191,15 @@ function RealtimeInfo() {
                 <div className="flex flex-col gap-1">
                   <div className="text-sm text-text-primary">고가</div>
                   <div className="text-lg font-medium text-red-600">
-                    {formatPrice(coinData?.high || '0')}
+                    <NumberFlow value={parseFloat(coinData?.high || '0')} />
+                    {/* {formatPrice(coinData?.high || '0')} */}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="text-sm text-text-primary">저가</div>
                   <div className="text-lg font-medium text-blue-600">
-                    {formatPrice(coinData?.low || '0')}
+                    <NumberFlow value={parseFloat(coinData?.low || '0')} />
+                    {/* {formatPrice(coinData?.low || '0')} */}
                   </div>
                 </div>
               </div>
@@ -243,7 +228,15 @@ function RealtimeInfo() {
                     <TooltipTrigger className="flex flex-col gap-1 text-left">
                       <div className="text-sm text-text-primary">거래량(24H)</div>
                       <div className="text-lg font-medium">
-                        {formatVolume(coinData?.target_volume || '0')}
+                        <NumberFlow
+                          value={parseFloat(coinData?.target_volume || '0')}
+                          format={{
+                            notation: 'compact',
+                            compactDisplay: 'short',
+                            maximumFractionDigits: 2,
+                          }}
+                        />
+                        {/* {formatVolume(coinData?.target_volume || '0')} */}
                         <span className="text-xs">BTC</span>
                       </div>
                     </TooltipTrigger>
@@ -258,7 +251,15 @@ function RealtimeInfo() {
                       <TooltipTrigger className="flex flex-col gap-1 text-left">
                         <div className="text-sm text-text-primary">거래대금(24H)</div>
                         <div className="text-lg font-medium">
-                          {formatVolume(coinData?.quote_volume || '0')}
+                          {/* {formatVolume(coinData?.quote_volume || '0')} */}
+                          <NumberFlow
+                            value={parseFloat(coinData?.quote_volume || '0')}
+                            format={{
+                              notation: 'compact',
+                              compactDisplay: 'short',
+                              maximumFractionDigits: 2,
+                            }}
+                          />
                           <span className="text-xs">KRW</span>
                         </div>
                       </TooltipTrigger>
