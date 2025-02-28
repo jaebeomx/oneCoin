@@ -125,15 +125,15 @@ function RealtimeInfo() {
     <>
       {/* 연결 상태 */}
       <div
-        className={`relative mb-3 w-[90px] px-3 py-1 text-xs font-semibold ${!isLoading ? 'bg-green-100 text-green-950' : 'bg-red-100 text-red-950'}`}
+        className={`relative mb-2 w-[90px] px-3 py-1 text-xs font-semibold ${!isLoading ? 'bg-green-100 text-green-950' : 'bg-red-100 text-red-950'}`}
       >
         <span
-          className={`absolute -left-[6px] -top-[6px] h-3 w-3 animate-pulse rounded-full ${!isLoading ? 'bg-green-500' : 'bg-red-500'}`}
+          className={`absolute -left-[6px] -top-[6px] h-3 w-3 animate-pulse rounded-full ${!isLoading ? 'bg-green-600' : 'bg-red-600'}`}
         ></span>
         {!isLoading ? '실시간 연결됨' : '소켓 연결 중'}
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="mb-2 grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* 현재가 카드 */}
         <Card className="overflow-hidden">
           <CardContent className="p-4">

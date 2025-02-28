@@ -24,6 +24,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ChartCandlestick, ChartNoAxesCombined } from 'lucide-react';
 import RealtimeInfo from '@/components/RealtimeInfo';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+
 type CandleStickData = {
   close: string;
   high: string;
@@ -224,75 +226,81 @@ const Exchange = () => {
   }, [data]);
 
   return (
-    <div className="p-3">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ChartNoAxesCombined />
-            Bitcoin Chart
-            <div className="ml-2 animate-pulse text-[14px] font-bold text-red-700">🚨 실시간</div>
-          </CardTitle>
-          <CardDescription>최대 500개의 데이터를 조회할 수 있습니다.</CardDescription>
-        </CardHeader>
+    <div className="p-2">
+      <Card className="w-full pt-3">
         <CardContent>
           {/* 실시간 코인 정보 (웹소켓) */}
           <RealtimeInfo />
-          <form>
-            <div className="flex w-full flex-wrap items-center gap-[10px]">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" placeholder="Coin Name" autoComplete="off" />
-              </div>
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="framework">Interval</Label>
-                <Select
-                  value={interval}
-                  onValueChange={(e) => {
-                    console.log(e);
-                    setInterval(e);
-                  }}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Interval" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[
-                      '1m',
-                      '3m',
-                      '5m',
-                      '15m',
-                      '30m',
-                      '1h',
-                      '2h',
-                      '4h',
-                      '6h',
-                      '1d',
-                      '1w',
-                      '1mon',
-                    ].map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {value}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="name">Fetch</Label>
+          <div className="flex items-center gap-2">
+            <form>
+              <div className="flex w-full flex-wrap items-center gap-[10px]">
                 <div className="flex flex-col space-y-1.5">
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault(); // form 기본동작 방지
-                      fetchChartData();
+                  <Label htmlFor="name">Name</Label>
+                  <Input id="name" placeholder="Coin Name" autoComplete="off" />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="framework">Interval</Label>
+                  <Select
+                    value={interval}
+                    onValueChange={(e) => {
+                      console.log(e);
+                      setInterval(e);
                     }}
                   >
-                    조회하기
-                  </Button>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Interval" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        '1m',
+                        '3m',
+                        '5m',
+                        '15m',
+                        '30m',
+                        '1h',
+                        '2h',
+                        '4h',
+                        '6h',
+                        '1d',
+                        '1w',
+                        '1mon',
+                      ].map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="name">Fetch</Label>
+                  <div className="flex flex-col space-y-1.5">
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault(); // form 기본동작 방지
+                        fetchChartData();
+                      }}
+                    >
+                      조회하기
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </form>
-          <div className="my-2 flex items-center gap-2">
+            </form>
+
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ChartNoAxesCombined />
+                Bitcoin Chart
+                <div className="ml-2 animate-pulse text-[14px] font-bold text-red-800">
+                  🚨 실시간
+                </div>
+              </CardTitle>
+              <CardDescription>최대 500개의 데이터를 조회할 수 있습니다.</CardDescription>
+            </CardHeader>
+          </div>
+
+          <div className="mb-[2px] flex items-center gap-2">
             <ChartCandlestick strokeWidth={1.5} color="#ff0000" />
             <div>{size}봉</div>
           </div>
@@ -323,7 +331,7 @@ const Exchange = () => {
                 />
 
                 {/* 그래프 눈금 설정 */}
-                <CartesianGrid />
+                <CartesianGrid strokeDasharray="1 1" />
 
                 {/* 제공된 데이터 배열에서 특정 키를 참조하여 각 막대의 값을 결정 */}
                 {/* 각 막대의 높이가 openClose 값을 기반으로 렌더링 */}
@@ -335,7 +343,7 @@ const Exchange = () => {
             </ResponsiveContainer>
 
             {/* 거래량(quote_volume) 차트 추가 */}
-            <ResponsiveContainer width="100%" height={90}>
+            <ResponsiveContainer width="100%" height={100}>
               <BarChart data={data} margin={{ bottom: 5, right: 40 }}>
                 {/* X축: 타임스탬프 적용 */}
                 <XAxis
@@ -355,9 +363,9 @@ const Exchange = () => {
                   tick={{ fontSize: 12 }}
                 />
 
-                <Tooltip
+                {/* <Tooltip
                   labelFormatter={(label) => `날짜: ${new Date(label).toLocaleDateString()}`}
-                />
+                /> */}
 
                 {/* 🚀 거래량을 나타내는 막대 그래프 */}
                 <Bar dataKey="target_volume" shape={<VolumeStick />} isAnimationActive={false} />
