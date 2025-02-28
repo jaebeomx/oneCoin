@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import NumberFlow from '@number-flow/react';
 
 type CoinData = {
   ask_best_price: string;
@@ -163,7 +164,8 @@ function RealtimeInfo() {
                 <div
                   className={`text-4xl font-bold ${isPositive ? 'text-red-600' : 'text-blue-600'}`}
                 >
-                  {formatPrice(coinData?.last || '0')}
+                  <NumberFlow value={parseFloat(coinData?.last || '0')} />
+
                   <span className="text-sm">KRW</span>
                   <span className="ml-1 text-sm text-text-secondary">
                     ({coinData ? formatTimestamp(coinData.timestamp) : ''} 기준)
