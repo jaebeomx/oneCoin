@@ -3,6 +3,7 @@ import Menubar from './components/MenuBar';
 import Exchange from './pages/Exchange';
 import Todo from './pages/Todo';
 import Test from './pages/Test';
+import Editor from './pages/Editor';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: '/test',
         element: <Test />,
+      },
+      {
+        path: 'editor',
+        element: <Editor />,
       },
     ],
   },

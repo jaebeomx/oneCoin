@@ -24,7 +24,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ChartCandlestick, ChartNoAxesCombined } from 'lucide-react';
 import RealtimeInfo from '@/components/RealtimeInfo';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
 type CandleStickData = {
   close: string;
