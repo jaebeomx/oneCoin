@@ -11,16 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const Test = () => {
   // 가상의 인기 검색어 데이터
-  const initialKeywords = [
-    '비트코인',
-    '이더리움',
-    '리플',
-    '도지코인',
-    '솔라나',
-    '에이다',
-    '시바이누',
-    '폴카닷',
-  ];
+  const initialKeywords = ['AF 행사', '클라이밍', '스파게티 탑', '방탈출', '타코야끼 만들기'];
 
   const [keywords, _] = useState(initialKeywords);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,7 +28,8 @@ const Test = () => {
   return (
     <div className="mx-auto mt-10 w-full max-w-xs">
       <h2 className="mb-4 text-center text-lg font-bold">실시간 인기 검색어</h2>
-      <div className="relative h-10 overflow-hidden rounded-md bg-gray-100 shadow-md">
+
+      <div className="relative h-10 overflow-hidden rounded-md bg-background-elevated shadow-md">
         {/* 검색어 리스트 */}
         <div
           className="absolute left-0 top-0 w-full transition-transform duration-500 ease-in-out"
@@ -48,7 +40,7 @@ const Test = () => {
           {keywords.map((keyword, index) => (
             <div
               key={index}
-              className="flex h-10 items-center justify-center text-sm font-medium text-gray-800"
+              className="flex h-10 items-center justify-center text-sm font-medium text-text-primary"
             >
               {index + 1}. {keyword}
             </div>

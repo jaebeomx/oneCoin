@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast, Toaster } from 'sonner';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -482,6 +483,17 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
     }
   }, []);
 
+  useEffect(() => {
+    fetch('http://localhost:3000/api/data')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('서버 응답:', data);
+      })
+      .catch((error) => {
+        console.error('API 호출 중 오류 발생:', error);
+      });
+  }, []);
+
   // useCallback으로 함수들 메모이제이션
   const handleEditorChange = useCallback(() => {
     if (editorRef.current) {
@@ -541,6 +553,43 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
     setAttachments((prev) => prev.filter((file) => file.id !== id));
   }, []);
 
+  // handleWriteArticle 함수 수정
+  const handleWriteArticle = useCallback(async () => {
+    if (!editorRef.current || !html.trim()) {
+      toast.error('작성된 내용이 없습니다.');
+      return;
+    }
+
+    try {
+      // HTML 내용만 JSON으로 전송
+      const response = await fetch('http://localhost:3000/api/articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: html,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`서버 오류: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('글 작성 성공:', result);
+
+      // 성공 토스트 메시지 표시
+      toast.success('글이 성공적으로 저장되었습니다.');
+    } catch (error) {
+      console.error('글 작성 오류:', error);
+      // 오류 토스트 메시지 표시
+      toast.error(
+        `글 저장 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
+      );
+    }
+  }, [html]);
+
   // 다른 메서드들도 useCallback으로 감싸기
   const applyFormat = useCallback(
     (command: string, value?: string) => {
@@ -568,10 +617,6 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
     },
     [handleEditorChange],
   );
-
-  const htmlContent = `
-  <i><span style="background-color: rgb(229, 153, 247);"><b><font size="5">안녕하세요</font></b></span></i><div><b>반갑<span style="background-color: rgb(216, 245, 162);">습니다.</span></b></div>
-`;
 
   const applyFontSize = useCallback(
     (size: string) => {
@@ -720,6 +765,13 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
         onDeleteAttachment={handleDeleteAttachment}
       />
 
+      {/* 글 작성 버튼 위치 수정 (이미 있는 경우 수정) */}
+      <div className="flex justify-end">
+        <Button variant="default" onClick={handleWriteArticle}>
+          글 작성
+        </Button>
+      </div>
+
       {/* 단축키 설명 */}
       <div className="mt-4 text-sm text-gray-500">
         <p>
@@ -728,8 +780,6 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
           <kbd className="rounded border bg-gray-100 px-1 py-0.5">Ctrl+U</kbd> 밑줄
         </p>
       </div>
-
-      {/* <div dangerouslySetInnerHTML={{ __html: htmlContent }} /> */}
 
       {/* 첨부파일 미리보기 모달 */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -777,6 +827,8 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
 
       {/* 파일 입력 필드 (다중 선택 가능) */}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" multiple />
+
+      <Toaster duration={1000} richColors closeButton position="top-right" />
     </div>
   );
 };

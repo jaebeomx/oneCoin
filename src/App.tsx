@@ -4,7 +4,7 @@ import Exchange from './pages/Exchange';
 import Todo from './pages/Todo';
 import Test from './pages/Test';
 import Editor from './pages/Editor';
-
+import Article from './pages/Article';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -26,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: 'editor',
         element: <Editor />,
+      },
+      {
+        path: '/article',
+        element: <Article />,
       },
     ],
   },
