@@ -25,7 +25,7 @@ function Article() {
       })
       .then((data) => {
         console.log('받아온 게시글:', data);
-        // setArticles(Array.isArray(data) ? data : [data]);
+        data.articles.reverse();
         setArticles(data.articles);
         setLoading(false);
       })

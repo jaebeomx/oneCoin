@@ -29,6 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Toggle } from '@/components/ui/toggle';
+import { HexColorPicker } from 'react-colorful';
 
 interface HtmlEditorProps {
   initialValue?: string;
@@ -68,6 +69,9 @@ const EditorToolbar = React.memo(
     colors,
     fontSizes,
   }: EditorToolbarProps) => {
+    const [customColor, setCustomColor] = useState('#aabbcc');
+    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+
     return (
       <div className="flex flex-wrap items-center gap-1 rounded-md border border-text-secondary bg-background-secondary p-1.5">
         {/* 글자 크기 */}
@@ -215,7 +219,11 @@ const EditorToolbar = React.memo(
                     />
                   ))}
                 </div>
-                <Button variant="outline" className="mt-3 w-full justify-center">
+                <Button
+                  onClick={() => setIsColorPickerOpen(true)}
+                  variant="outline"
+                  className="mt-3 w-full justify-center"
+                >
                   사용자 지정
                 </Button>
               </PopoverContent>
@@ -397,6 +405,25 @@ const EditorToolbar = React.memo(
             <TooltipContent side="bottom">이미지</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+
+        {isColorPickerOpen && (
+          <Dialog open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
+            <DialogContent className="w-fit p-10">
+              <HexColorPicker color={customColor} onChange={setCustomColor} />
+              <div style={{ color: customColor }}>{customColor}</div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  console.log('디버깅용 커스텀 컬러', customColor);
+                  applyColor(customColor);
+                  setIsColorPickerOpen(false);
+                }}
+              >
+                적용
+              </Button>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     );
   },
