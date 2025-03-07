@@ -68,10 +68,10 @@ function Article() {
         {articles.map((article) => (
           <div
             key={article.id}
-            className="overflow-hidden rounded-lg border border-gray-200 bg-background-elevated shadow-sm"
+            className="overflow-hidden rounded-lg border border-text-secondary bg-background-elevated shadow-sm"
           >
             {/* 게시글 헤더 */}
-            <div className="border-b border-gray-200 bg-background-secondary p-4">
+            <div className="border-b border-text-secondary bg-background-secondary p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-text-primary">ID: {article.id}</span>
                 <time className="text-sm text-text-primary" dateTime={article.createdAt}>

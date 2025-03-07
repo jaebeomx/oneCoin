@@ -69,9 +69,9 @@ const EditorToolbar = React.memo(
     fontSizes,
   }: EditorToolbarProps) => {
     return (
-      <div className="flex flex-wrap items-center gap-1 rounded-md border border-gray-200 bg-background-elevated p-1.5">
+      <div className="flex flex-wrap items-center gap-1 rounded-md border border-text-secondary bg-background-secondary p-1.5">
         {/* 글자 크기 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <Popover>
               <TooltipTrigger asChild>
@@ -106,7 +106,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 굵게, 기울임, 밑줄 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -122,7 +122,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -138,7 +138,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -157,7 +157,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 위첨자, 아래첨자 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -173,7 +173,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -192,7 +192,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 글자 색상 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <Popover>
               <TooltipTrigger asChild>
@@ -225,7 +225,7 @@ const EditorToolbar = React.memo(
         </TooltipProvider>
 
         {/* 형광펜 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <Popover>
               <TooltipTrigger asChild>
@@ -275,7 +275,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 정렬 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -291,7 +291,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -307,7 +307,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -326,7 +326,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 목록 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -342,7 +342,7 @@ const EditorToolbar = React.memo(
           </Tooltip>
         </TooltipProvider>
 
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -361,7 +361,7 @@ const EditorToolbar = React.memo(
         <div className="mx-1 h-6 w-px bg-gray-300"></div>
 
         {/* 링크 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -381,7 +381,7 @@ const EditorToolbar = React.memo(
         </TooltipProvider>
 
         {/* 이미지 */}
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -416,17 +416,18 @@ const AttachmentList = React.memo(
     if (attachments.length === 0) return null;
 
     return (
-      <div className="mt-4 rounded-md border border-gray-200 bg-background-secondary p-2">
+      <div className="mt-4 rounded-md border border-text-secondary bg-background-secondary p-2">
         <h3 className="mb-2 font-medium text-primary">첨부파일</h3>
         <div className="space-y-2">
           {attachments.map((file) => (
             <div
               key={file.id}
-              className="bg-background-primary flex items-center justify-between rounded-md border border-gray-100 p-2"
+              className="bg-background-primary flex items-center justify-between rounded-md border border-text-secondary p-2"
             >
               <div className="flex items-center gap-2">
                 {file.type.startsWith('image/') ? (
                   <div className="h-10 w-10 overflow-hidden rounded-md border border-gray-200">
+                    {/* URL은 브라우저의 메모리에서 생성 */}
                     <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
                   </div>
                 ) : (
@@ -438,12 +439,12 @@ const AttachmentList = React.memo(
                 >
                   {file.name}
                 </button>
-                <span className="text-xs text-text-primary">
+                <span className="text-xs text-text-secondary">
                   ({(file.size / 1024).toFixed(0)} KB)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-text-secondary">
                   {file.date.toLocaleString('ko-KR', {
                     year: 'numeric',
                     month: '2-digit',
@@ -457,7 +458,7 @@ const AttachmentList = React.memo(
                   className="ml-2 rounded-full p-1 hover:bg-gray-100"
                   title="삭제"
                 >
-                  <Trash2 className="h-4 w-4 text-gray-500" />
+                  <Trash2 className="h-4 w-4 text-text-secondary" />
                 </button>
               </div>
             </div>
@@ -506,9 +507,10 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
     fileInputRef.current?.click();
   }, []);
 
-  // 파일 업로드 핸들러 수정
+  // 파일 업로드 핸들러
   const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    // 각각의 File 객체는 name, lastModified, lastModifiedDate, size, type("image/png"),
+    const files = e.target.files; // FileList 객체 배열 (각 파일은 File 객체)
     if (!files || files.length === 0) return;
 
     // 여러 파일을 처리하기 위해 배열로 변환
@@ -517,12 +519,26 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
 
       // 이미지 파일을 Base64로 변환 (FileReader 사용) - 이진 데이터를 ASCII 문자열로 변환
       // Base 64 Url로 전환하는 이유는 이미지를 서버로 전송하지 않고도 브라우저에서 미리보기 등을 할 수 있도록 하기 위함
+      // FileReader: 파일 시스템의 내용을 비동기적으로 읽기 위한 객체
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Url = event.target?.result;
-        if (typeof base64Url === 'string') {
-          // 첨부파일 목록에 추가
 
+      reader.readAsDataURL(file); // 파일을 Base64 형식의 데이터 URL로 변환 (미리보기를 위해)
+
+      // 파일 읽기를 성공적으로 마치면 event 객체를 통해 읽은 결과 접근
+      reader.onload = (event) => {
+        // 메서드별 event.target.result 값
+        // FileReader 메서드            event.target.result 값
+        // readAsText(file)           문자열 (텍스트 데이터)
+        // readAsDataURL(file)        데이터 URL (Base64 인코딩)
+        // readAsArrayBuffer(file)    ArrayBuffer (바이너리 데이터)
+        // readAsBinaryString(file)   바이너리 문자열 (구버전)
+
+        // data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA... (이하 생략)
+        // 파일의 실제 데이터를 Base64로 인코딩한 문자열
+        const base64Url = event.target?.result;
+
+        // 첨부파일 목록에 추가
+        if (typeof base64Url === 'string') {
           const newAttachment: AttachmentFile = {
             id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
             name: file.name,
@@ -535,14 +551,14 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
           setAttachments((prev) => [...prev, newAttachment]);
         }
       };
-      reader.readAsDataURL(file);
+      // 실제로 지정된 파일을 비동기적으로 읽음 (파일의 내용을 메모리로 가져오고 Base64 형식의 데이터 URL로 변환)
     });
 
     // 같은 파일 재선택 시에도 동작하도록 초기화
     e.target.value = '';
   }, []);
 
-  // 첨부파일 보기
+  // 첨부파일 미리보기
   const handleViewAttachment = useCallback((attachment: AttachmentFile) => {
     setSelectedAttachment(attachment);
     setIsDialogOpen(true);
@@ -706,10 +722,10 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
   };
 
   return (
-    <div className="bg-background-primary w-full space-y-4">
-      <div className="flex justify-end space-x-2">
+    <div className="w-full space-y-1.5 rounded-lg bg-background-elevated p-[100px]">
+      <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={handleClear}>
-          초기화
+          게시글 초기화
         </Button>
         <Button variant="outline" onClick={copyToClipboard}>
           HTML 복사
@@ -728,31 +744,20 @@ const HtmlEditor = ({ initialValue = '' }: HtmlEditorProps) => {
         fontSizes={fontSizes}
       />
 
-      <div className="flex flex-col gap-4 bg-background-elevated md:flex-row">
+      <div className="flex flex-col gap-4 rounded-lg bg-background-secondary md:flex-row">
         {/* 미리보기 영역 (왼쪽) - 여기서 직접 타이핑 */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full rounded-lg">
           <Card>
             {/* contentEditable 속성을 사용하면 별도의 에디터 라이브러리를 사용하지 않고도 빠르게 편집 가능한 텍스트 영역 구현 가능 */}
-            <CardContent className="bg-background-secondary pt-6">
+            <CardContent className="rounded-lg bg-background-secondary pt-6">
               <div
                 ref={editorRef}
                 contentEditable
                 onInput={handleEditorChange}
                 onBlur={handleEditorChange} // 포커스 아웃 시 상태 업데이트
                 onKeyDown={handleKeyDown}
-                className="prose min-h-[300px] max-w-none overflow-y-auto rounded-md border border-gray-200 bg-background-secondary p-4 text-base leading-relaxed outline-none"
+                className="prose min-h-[300px] max-w-none overflow-y-auto rounded-md border border-text-secondary bg-background-secondary p-4 text-base leading-relaxed outline-none"
               />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* HTML 코드 영역 (오른쪽) */}
-        <div className="w-full bg-background-elevated md:w-1/2">
-          <Card>
-            <CardContent className="bg-background-secondary pt-6">
-              <pre className="h-full min-h-[300px] overflow-x-auto whitespace-pre-wrap rounded-md border border-gray-200 bg-background-secondary p-4 font-mono text-sm leading-relaxed">
-                {html}
-              </pre>
             </CardContent>
           </Card>
         </div>
